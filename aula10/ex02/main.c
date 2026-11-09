@@ -6,9 +6,10 @@ void output(int v[], int n) { for(int i = 0; i < n; i++) i != n-1 ? printf("%d "
 
 void swap(int *a, int *b);
 int *copy_vector(int v[], int n);
-int bubble_sort(int v[], int n);
-int insertion_sort(int v[], int n);
-int selection_sort(int v[], int n);
+int compare_input(int v[], int n, int *steps[], int i);
+int bubble_sort(int v[], int n, int *steps[]);
+int insertion_sort(int v[], int n, int *steps[]);
+int selection_sort(int v[], int n, int *steps[]);
 
 int main()
 {
@@ -19,16 +20,32 @@ int main()
 	for(int i = 0; i < n; i++)
 		scanf("%d", &v[i]);
 
+	int **steps = malloc(sizeof(int) * (n-1)*n);
+	if(!steps)
+		return -1;
+
+	for(int i = 0; i < n-1; i++)
+	{
+		steps[i] = malloc(sizeof(int) * n);
+	}
+
+	for(int i = 0; i < n-1; i++)
+	{
+		for(int j = 0; j < n; j++)
+			scanf("%d", &steps[i][j]);
+	}
+
+
 	int *u = copy_vector(v, n);
-	if(bubble_sort(u, n))
+	if(bubble_sort(u, n, steps))
 		return 0;
 
 	u = copy_vector(v, n);
-	if(insertion_sort(u, n))
+	if(insertion_sort(u, n, steps))
 		return 0;
 
 	u = copy_vector(v, n);
-	if(selection_sort(u, n))
+	if(selection_sort(u, n, steps))
 		return 0;
 
 	free(u);
@@ -54,22 +71,18 @@ int *copy_vector(int v[], int n)
 	return u;
 }
 
-int compare_input(int v[], int n)
+int compare_input(int v[], int n, int *steps[], int i)
 {
-	for(int i = 0; i < n; i++)
+	for(int j = 0; j < n; j++)
 	{
-		int x;
-		scanf("%d", &x);
-
-		// printf("x = %d / v[%d] = %d\n", x, i, v[i]);
-		if(v[i] != x)
+		if(v[j] != steps[i][j])
 			return 0;
 	}
 
 	return 1;
 }
 
-int bubble_sort(int v[], int n)
+int bubble_sort(int v[], int n, int *steps[])
 {
 	for(int i = 0; i < n-1; i++)
 	{
@@ -78,52 +91,48 @@ int bubble_sort(int v[], int n)
 			if(v[j] > v[j+1])
 			{
 				swap(&v[j], &v[j+1]);
-				// output(v, n);
-				if(!compare_input(v, n))
-					return 0;
 			}
 		}
+		if(!compare_input(v, n, steps, i))
+			return 0;
+
 	}
 
 	puts("BUBBLE");
 	return 1;
 }
 
-int insertion_sort(int v[], int n)
+int insertion_sort(int v[], int n, int *steps[])
 {
 	for(int i = 1; i < n; i++)
 	{
 		for(int j = i; v[j] < v[j-1] && j > 0; j--)
 		{
 			swap(&v[j], &v[j-1]);
-			// output(v, n);
-			if(!compare_input(v, n))
-				return 0;
 		}
+		// output(v, n);
+		if(!compare_input(v, n, steps, i-1))
+			return 0;
+
 	}
 
 	puts("INSERTION");
 	return 1;
 }
 
-int selection_sort(int v[], int n)
+int selection_sort(int v[], int n, int *steps[])
 {
-	for(int i = 0; i < n; i++)
+	for(int i = 0; i < n-1; i++)
 	{
-		int min = INT_MAX;
-		int pos = i;
-		for(int j = i; j < n; j++)
+		int min_idx = i;
+		for(int j = i+1; j < n; j++)
 		{
-			if(v[j] < min)
-			{
-				min = v[j];
-				pos = j;
-			}
+			if(v[j] < v[min_idx])
+				min_idx = j;	
 		}
 
-		swap(&v[pos], &v[i]);
-		// output(v, n);
-		if(!compare_input(v, n))
+		swap(&v[i], &v[min_idx]);
+		if(!compare_input(v, n, steps, i))
 			return 0;
 	}
 
