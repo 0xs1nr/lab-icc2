@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <limits.h>
 
 void output(int v[], int n) { for(int i = 0; i < n; i++) i != n-1 ? printf("%d ", v[i]) : printf("%d\n", v[i]); }
 
@@ -13,6 +12,9 @@ int selection_sort(int v[], int n, int *steps[]);
 
 int main()
 {
+	// --- Entrada ---
+
+	// Cria o vetor a ser ordenado
 	int n;
 	scanf("%d", &n);
 
@@ -20,6 +22,7 @@ int main()
 	for(int i = 0; i < n; i++)
 		scanf("%d", &v[i]);
 
+	// Cria uma matriz para armazenar os passos dados na entrada
 	int **steps = malloc(sizeof(int) * (n-1)*n);
 	if(!steps)
 		return -1;
@@ -29,13 +32,20 @@ int main()
 		steps[i] = malloc(sizeof(int) * n);
 	}
 
+	// Le os passos e coloca na matriz
 	for(int i = 0; i < n-1; i++)
 	{
 		for(int j = 0; j < n; j++)
 			scanf("%d", &steps[i][j]);
 	}
 
+	// --- Logica do programa ---
 
+	// Realiza o seguinte algoritmo para cada metodo de ordenacao
+	//
+	// 1. Cria uma copia do vetor desordenado (u)
+	// 2. Realiza o metodo de ordenacao e compara cada passo com a matriz
+	
 	int *u = copy_vector(v, n);
 	if(bubble_sort(u, n, steps))
 		return 0;
@@ -48,8 +58,21 @@ int main()
 	if(selection_sort(u, n, steps))
 		return 0;
 
+	// --- Limpeza da memoria alocada ---
+	
+	// Limpa a copia do vetor
 	free(u);
 	u = NULL;
+
+	// Limpa a matriz de passos
+	for(int i = 0; i < n-1; i++)
+	{
+		free(steps[i]);
+		steps[i] = NULL;
+	}
+
+	free(steps);
+	steps = NULL;
 
 	return 0;
 }
@@ -76,10 +99,10 @@ int compare_input(int v[], int n, int *steps[], int i)
 	for(int j = 0; j < n; j++)
 	{
 		if(v[j] != steps[i][j])
-			return 0;
+			return 0; // Os passos sao diferentes
 	}
 
-	return 1;
+	return 1; // Os passos sao iguais
 }
 
 int bubble_sort(int v[], int n, int *steps[])
@@ -93,9 +116,10 @@ int bubble_sort(int v[], int n, int *steps[])
 				swap(&v[j], &v[j+1]);
 			}
 		}
+
+		// output(v, n);
 		if(!compare_input(v, n, steps, i))
 			return 0;
-
 	}
 
 	puts("BUBBLE");
@@ -132,6 +156,7 @@ int selection_sort(int v[], int n, int *steps[])
 		}
 
 		swap(&v[i], &v[min_idx]);
+		// output(v, n);
 		if(!compare_input(v, n, steps, i))
 			return 0;
 	}
